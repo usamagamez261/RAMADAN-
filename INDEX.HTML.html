@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رمضان ٹریکر - شاہی اینیمیٹڈ پرو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap');
+        
+        :root {
+            --royal-blue: #041C32;
+            --deep-ocean: #04293A;
+            --gold-primary: #ECB365;
+            --gold-glow: rgba(236, 179, 101, 0.4);
+        }
+
+        body {
+            font-family: 'Noto Sans Arabic', sans-serif;
+            background: radial-gradient(circle at center, #064663 0%, #041C32 100%);
+            background-attachment: fixed;
+            color: #E6E6E6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .main-card {
+            background: rgba(4, 28, 50, 0.9);
+            border: 2px solid var(--gold-primary);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.7), 0 0 20px var(--gold-glow);
+            backdrop-filter: blur(15px);
+        }
+
+        /* --- ADVANCED ANIMATIONS --- */
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px var(--gold-glow); }
+            50% { box-shadow: 0 0 20px var(--gold-primary); }
+            100% { box-shadow: 0 0 5px var(--gold-glow); }
+        }
+
+        @keyframes trophyFloat {
+            0% { transform: translateY(0px) rotate(0deg); filter: drop-shadow(0 0 5px gold); }
+            50% { transform: translateY(-15px) rotate(5deg); filter: drop-shadow(0 0 25px gold); }
+            100% { transform: translateY(0px) rotate(0deg); filter: drop-shadow(0 0 5px gold); }
+        }
+
+        .animate-icon {
+            animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: inline-block;
+        }
+
+        .ripple-effect {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ripple 0.6s linear;
+        }
+
+        .grid-cell {
+            width: 44px;
+            height: 44px;
+            border: 1px solid rgba(236, 179, 101, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: bold;
+            user-select: none;
+            background: rgba(6, 70, 99, 0.4);
+            font-family: sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell:active { transform: scale(0.9); }
+
+        .status-tick { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; 
+            color: white !important; 
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            border-color: #34d399 !important;
+        }
+        
+        .status-cross { 
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; 
+            color: white !important; 
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+            border-color: #fb7185 !important;
+        }
+
+        .sticky-col {
+            position: sticky;
+            right: 0;
+            background: #041C32;
+            z-index: 20;
+            border-left: 4px solid var(--gold-primary);
+            padding: 12px;
+            min-width: 270px;
+            text-align: right;
+            color: #ECB365;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.4);
+            transition: background 0.3s;
+        }
+
+        tr:hover .sticky-col { background: #064663; }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            background: rgba(2, 10, 18, 0.5);
+            border: 1px solid rgba(236, 179, 101, 0.3);
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold-primary) #041C32;
+        }
+
+        .gold-text { color: var(--gold-primary); }
+        
+        .result-box {
+            background: linear-gradient(145deg, #064663, #041C32);
+            border: 2px solid var(--gold-primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .percentage-glow {
+            animation: pulseGlow 2s infinite;
+        }
+
+        .profile-input-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(236, 179, 101, 0.3);
+            border-radius: 1.5rem;
+            padding: 1rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .profile-input-container:focus-within {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 15px var(--gold-glow);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .trophy-container {
+            display: none;
+            animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .trophy-image {
+            animation: trophyFloat 3s ease-in-out infinite;
+            font-size: 6rem;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Custom Modal Style */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        @media (max-width: 768px) {
+            .sticky-col { min-width: 170px; font-size: 0.85rem; }
+            .grid-cell { width: 38px; height: 38px; }
+            .trophy-image { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body class="p-3 md:p-8">
+
+    <!-- Reset Confirmation Modal -->
+    <div id="resetModal" class="modal-overlay">
+        <div class="main-card p-10 rounded-[2rem] max-w-sm text-center transform scale-110">
+            <div class="text-5xl mb-4">⚠️</div>
+            <h3 class="text-2xl font-bold gold-text mb-4">ڈیٹا ڈیلیٹ کریں؟</h3>
+            <p class="mb-6 opacity-80 text-sm">کیا آپ واقعی سارا ریکارڈ ختم کرنا چاہتے ہیں؟ آپ کی محنت کا ریکارڈ مٹ جائے گا۔</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="confirmReset()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-bold transition-all shadow-lg active:scale-90">جی ہاں، مٹا دیں</button>
+                <button onclick="closeModal()" class="bg-gray-700 hover:bg-gray-600 text-white px-8 py-3 rounded-full font-bold transition-all active:scale-90">کینسل</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto main-card p-5 md:p-12 rounded-[2.5rem]">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-12 pb-8 border-b border-gold-primary/20">
+            <div class="hidden md:block text-center border border-gold-primary/40 p-4 rounded-2xl bg-black/20 text-xs">
+                ہر (✓) کا <span class="text-green-400 font-bold">1 نمبر</span> <br> اور (×) کا <span class="text-red-400 font-bold">0 نمبر</span>
+            </div>
+            
+            <div class="text-center">
+                <div class="text-6xl mb-3 drop-shadow-lg">🕌</div>
+                <h1 class="text-4xl md:text-6xl font-extrabold gold-text tracking-tight mb-2">متقی بننے کا رمضان کورس</h1>
+                <p class="text-lg font-bold text-blue-300 italic opacity-80">مرکزی دینی تعلیمی بورڈ جمعیۃ علماء ہند</p>
+            </div>
+
+            <div class="text-center border border-gold-primary/40 p-4 rounded-2xl bg-black/20 text-xs">
+                ایمانداری سے پر کریں <br> اور اپنا تزکیہ کریں
+            </div>
+        </div>
+
+        <!-- Royal Result Card -->
+        <div class="mb-12">
+            <div class="result-box rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 p-4 opacity-5 text-[15rem] rotate-12">🌙</div>
+                
+                <!-- Trophy Display Area -->
+                <div id="trophyContainer" class="trophy-container text-center mb-6">
+                    <div id="trophyIcon" class="trophy-image">🏆</div>
+                    <p id="trophyTitle" class="gold-text font-bold text-xl mt-2 tracking-widest">ماشاءاللہ! آپ کا انعام</p>
+                </div>
+
+                <h2 class="text-2xl font-bold mb-8 gold-text text-center border-b border-gold-primary/20 pb-4">مجموعی کارکردگی</h2>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-black/40 p-6 rounded-3xl border border-gold-primary/10 text-center">
+                        <p class="text-xs gold-text uppercase tracking-widest mb-3">کل پوائنٹس</p>
+                        <p id="totalScore" class="text-5xl font-bold">0</p>
+                    </div>
+                    <div class="bg-black/40 p-6 rounded-3xl border border-gold-primary/10 text-center">
+                        <p class="text-xs gold-text uppercase tracking-widest mb-3">حاصل کردہ</p>
+                        <p id="obtainedScore" class="text-5xl font-bold text-green-400">0</p>
+                    </div>
+                    <div id="percBox" class="bg-black/40 p-6 rounded-3xl border border-gold-primary/10 text-center transition-all duration-500">
+                        <p class="text-xs gold-text uppercase tracking-widest mb-3">کامیابی</p>
+                        <p id="percentageDisplay" class="text-5xl font-bold text-blue-400">0%</p>
+                    </div>
+                    <div class="bg-black/40 p-6 rounded-3xl border border-gold-primary/10 text-center">
+                        <p class="text-xs gold-text uppercase tracking-widest mb-3">درجہ</p>
+                        <p id="gradeDisplay" class="text-2xl font-bold gold-text">---</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Info Section -->
+        <div class="grid md:grid-cols-2 gap-8 mb-16">
+            <div class="profile-input-container flex items-center gap-4">
+                <div class="text-2xl gold-text">👤</div>
+                <div class="flex-grow">
+                    <label class="block text-[10px] gold-text font-bold uppercase tracking-widest mb-1">آپ کا مبارک نام</label>
+                    <input type="text" placeholder="نام درج کریں..." id="userName" class="bg-transparent w-full text-white font-bold text-lg outline-none placeholder:text-white/20">
+                </div>
+            </div>
+            <div class="profile-input-container flex items-center gap-4">
+                <div class="text-2xl gold-text">👪</div>
+                <div class="flex-grow">
+                    <label class="block text-[10px] gold-text font-bold uppercase tracking-widest mb-1">والد محترم کا نام</label>
+                    <input type="text" placeholder="ولدیت لکھیں..." id="fatherName" class="bg-transparent w-full text-white font-bold text-lg outline-none placeholder:text-white/20">
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Label -->
+        <div class="flex items-center gap-4 mb-4 px-2">
+            <div class="h-[2px] flex-grow bg-gradient-to-l from-gold-primary/50 to-transparent"></div>
+            <span class="gold-text font-bold text-sm">روزانہ کے اعمال (1 تا 30 رمضان)</span>
+            <div class="h-[2px] flex-grow bg-gradient-to-r from-gold-primary/50 to-transparent"></div>
+        </div>
+
+        <div class="table-container mb-12 shadow-2xl">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-black/60">
+                        <th class="p-6 border-b border-gold-primary/20 sticky-col font-bold text-xl">نیک اعمال کی فہرست</th>
+                        <script>
+                            for(let i=1; i<=30; i++) {
+                                document.write(`<th class="border-b border-gold-primary/20 text-center w-14 py-4 font-sans font-bold text-sm gold-text">${i}</th>`);
+                            }
+                        </script>
+                    </tr>
+                </thead>
+                <tbody id="taskTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Bottom Lists -->
+        <div class="grid md:grid-cols-2 gap-10 mb-16">
+            <div class="bg-black/30 p-8 rounded-[2rem] border border-gold-primary/20 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">✨</div>
+                <h3 class="text-2xl font-bold gold-text mb-6 border-b border-gold-primary/10 pb-4 flex items-center gap-2">
+                    <span>🌟</span> عشرے کے خاص کام
+                </h3>
+                <div id="specialTasks" class="space-y-4"></div>
+            </div>
+
+            <div class="bg-black/30 p-8 rounded-[2rem] border border-gold-primary/20 shadow-xl relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-6xl opacity-10">🎯</div>
+                <h3 class="text-2xl font-bold text-green-400 mb-6 border-b border-gold-primary/10 pb-4 flex items-center gap-2">
+                    <span>🏆</span> رمضان کے بڑے اہداف
+                </h3>
+                <div id="overallGoals" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-gold-primary/20 pt-12 flex flex-col items-center">
+            <p class="text-blue-300 italic mb-8 text-center text-lg">اللہ تعالیٰ ہمیں اخلاص کے ساتھ ان اعمال کی توفیق عطا فرمائے۔</p>
+            <button onclick="openResetModal()" class="group relative bg-red-950/30 text-red-500 border border-red-900/50 px-16 py-4 rounded-full font-bold overflow-hidden transition-all hover:bg-red-600 hover:text-white mb-8">
+                <span class="relative z-10">پورا ڈیٹا ری سیٹ کریں</span>
+                <div class="absolute inset-0 bg-red-600 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+            </button>
+            <div class="flex flex-col items-center gap-2">
+                <p class="text-[var(--gold-primary)] font-bold text-xl tracking-widest drop-shadow-[0_0_10px_rgba(236,179,101,0.5)]">Created by Hafiz Usama Umar</p>
+                <div class="h-1 w-32 bg-gradient-to-r from-transparent via-gold-primary to-transparent opacity-50"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dailyTasks = [
+            "کیا آپ نے تہجد کی نماز ادا کی؟",
+            "کیا آپ نے آج کا روزہ رکھا؟",
+            "فجر کی نماز باجماعت ادا کی؟",
+            "سورہ یٰسین کی تلاوت کی؟",
+            "لڑائی، جھگڑے اور جھوٹ سے بچے رہے؟",
+            "ظہر کی نماز باجماعت ادا کی؟",
+            "100 مرتبہ درود پاک پڑھا؟",
+            "کم از کم ایک پارے کی تلاوت کی؟",
+            "عصر کی نماز باجماعت ادا کی؟",
+            "100 مرتبہ استغفار کیا؟",
+            "مغرب کی نماز باجماعت ادا کی؟",
+            "عشاء، تراویح اور وتر باجماعت پڑھے؟",
+            "والدین کی خدمت کی یا دعا دی؟"
+        ];
+
+        const specialTasks = [
+            "کسی غریب کو افطار کرایا؟",
+            "ضرورت مند کو صدقہ دیا؟",
+            "جمعہ کو سورہ کہف مکمل پڑھی؟",
+            "صلوٰۃ تسبیح کا اہتمام کیا؟",
+            "دین کی کوئی نئی بات سیکھی؟"
+        ];
+
+        const overallGoals = [
+            "مکمل رمضان کی تراویح پڑھی؟",
+            "رمضان کے تمام روزے مکمل رکھے؟",
+            "پورے قرآن کا دورہ مکمل سنا؟",
+            "خود کم از کم ایک ختمِ قرآن کیا؟",
+            "اعتکاف یا آخری عشرے کی شب بیداری؟"
+        ];
+
+        let appState = JSON.parse(localStorage.getItem('ramadanRoyalTracker_v3')) || {};
+
+        function calculateScore() {
+            let obtained = 0;
+            let total = (dailyTasks.length * 30) + (specialTasks.length) + (overallGoals.length * 5);
+
+            for(let t=0; t<dailyTasks.length; t++) {
+                for(let d=1; d<=30; d++) {
+                    if(appState[`d-${t}-${d}`] === 'tick') obtained += 1;
+                }
+            }
+            specialTasks.forEach((_, i) => { if(appState[`s-${i}`]) obtained += 1; });
+            overallGoals.forEach((_, i) => { if(appState[`g-${i}`]) obtained += 5; });
+
+            const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
+            const prevPerc = parseInt(document.getElementById('percentageDisplay').innerText);
+            
+            if(percent > prevPerc) {
+                const box = document.getElementById('percBox');
+                box.classList.add('percentage-glow');
+                setTimeout(() => box.classList.remove('percentage-glow'), 1000);
+            }
+
+            document.getElementById('totalScore').innerText = total;
+            document.getElementById('obtainedScore').innerText = obtained;
+            document.getElementById('percentageDisplay').innerText = percent + '%';
+            
+            updateTrophy(percent);
+        }
+
+        function updateTrophy(percent) {
+            const container = document.getElementById('trophyContainer');
+            const icon = document.getElementById('trophyIcon');
+            const title = document.getElementById('trophyTitle');
+            const gradeDisplay = document.getElementById('gradeDisplay');
+
+            if (percent >= 50) {
+                container.style.display = 'block';
+                if (percent >= 90) {
+                    icon.innerText = "🏆";
+                    title.innerText = "ماشاءاللہ! شاہی گولڈن ٹرافی";
+                    gradeDisplay.innerText = "⭐ ممتاز (Excellent)";
+                    gradeDisplay.className = "text-2xl font-bold text-yellow-400";
+                } else if (percent >= 75) {
+                    icon.innerText = "🥈";
+                    title.innerText = "بہت خوب! سلور میڈل";
+                    gradeDisplay.innerText = "✅ جید (Very Good)";
+                    gradeDisplay.className = "text-2xl font-bold text-gray-300";
+                } else {
+                    icon.innerText = "🥉";
+                    title.innerText = "اچھی کوشش! برونز میڈل";
+                    gradeDisplay.innerText = "✨ متوسط (Average)";
+                    gradeDisplay.className = "text-2xl font-bold text-orange-400";
+                }
+            } else {
+                container.style.display = 'none';
+                gradeDisplay.innerText = "کوشش جاری رکھیں";
+                gradeDisplay.className = "text-2xl font-bold gold-text";
+            }
+        }
+
+        function createRipple(e) {
+            const cell = e.currentTarget;
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple-effect';
+            cell.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        function renderApp() {
+            const tableBody = document.getElementById('taskTableBody');
+            tableBody.innerHTML = '';
+            dailyTasks.forEach((task, tIdx) => {
+                const row = document.createElement('tr');
+                row.className = "group";
+                row.innerHTML = `<td class="p-4 border-b border-gold-primary/10 sticky-col font-bold group-hover:text-white transition-colors">${task}</td>`;
+                for(let d=1; d<=30; d++) {
+                    const key = `d-${tIdx}-${d}`;
+                    const status = appState[key] || 'none';
+                    const icon = status === 'tick' ? '<span class="animate-icon">✓</span>' : (status === 'cross' ? '<span class="animate-icon">✕</span>' : '');
+                    const cls = status === 'tick' ? 'status-tick' : (status === 'cross' ? 'status-cross' : '');
+                    row.innerHTML += `<td class="border-b border-gold-primary/10 p-0 text-center"><div class="grid-cell mx-auto ${cls}" onclick="handleCellClick(event, '${key}')">${icon}</div></td>`;
+                }
+                tableBody.appendChild(row);
+            });
+
+            const sDiv = document.getElementById('specialTasks');
+            sDiv.innerHTML = '';
+            specialTasks.forEach((task, i) => {
+                const key = `s-${i}`;
+                sDiv.innerHTML += `
+                    <div class="flex items-center justify-between p-5 bg-black/40 rounded-2xl border border-gold-primary/10 hover:border-gold-primary/50 transition-all cursor-pointer" onclick="toggleCheck('${key}')">
+                        <label class="font-bold text-sm gold-text cursor-pointer">${task}</label>
+                        <input type="checkbox" class="w-6 h-6 accent-gold cursor-pointer" style="accent-color: #ECB365" ${appState[key] ? 'checked' : ''} onchange="event.stopPropagation(); toggleCheck('${key}')">
+                    </div>`;
+            });
+
+            const gDiv = document.getElementById('overallGoals');
+            gDiv.innerHTML = '';
+            overallGoals.forEach((goal, i) => {
+                const key = `g-${i}`;
+                gDiv.innerHTML += `
+                    <div class="flex items-center justify-between p-5 bg-black/40 rounded-2xl border border-gold-primary/10 hover:border-green-500/50 transition-all cursor-pointer" onclick="toggleCheck('${key}')">
+                        <label class="font-bold text-sm text-green-200 cursor-pointer">${goal}</label>
+                        <input type="checkbox" class="w-6 h-6 cursor-pointer" style="accent-color: #4ade80" ${appState[key] ? 'checked' : ''} onchange="event.stopPropagation(); toggleCheck('${key}')">
+                    </div>`;
+            });
+
+            document.getElementById('userName').value = appState['user_name'] || '';
+            document.getElementById('fatherName').value = appState['father_name'] || '';
+
+            calculateScore();
+        }
+
+        document.getElementById('userName').addEventListener('input', (e) => {
+            appState['user_name'] = e.target.value;
+            localStorage.setItem('ramadanRoyalTracker_v3', JSON.stringify(appState));
+        });
+        document.getElementById('fatherName').addEventListener('input', (e) => {
+            appState['father_name'] = e.target.value;
+            localStorage.setItem('ramadanRoyalTracker_v3', JSON.stringify(appState));
+        });
+
+        function handleCellClick(e, key) {
+            createRipple(e);
+            toggleCell(key);
+        }
+
+        function toggleCell(key) {
+            const cur = appState[key] || 'none';
+            appState[key] = (cur === 'none') ? 'tick' : (cur === 'tick' ? 'cross' : 'none');
+            save();
+        }
+
+        function toggleCheck(key) {
+            appState[key] = !appState[key];
+            save();
+        }
+
+        function save() {
+            localStorage.setItem('ramadanRoyalTracker_v3', JSON.stringify(appState));
+            renderApp();
+        }
+
+        function openResetModal() {
+            document.getElementById('resetModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('resetModal').style.display = 'none';
+        }
+
+        function confirmReset() {
+            appState = {};
+            save();
+            closeModal();
+        }
+
+        window.onload = renderApp;
+    </script>
+</body>
+</html>
